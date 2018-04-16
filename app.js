@@ -42,7 +42,6 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended: true}));
 
-const xeroWebhookKey = 'YNGJ+to1N5VqQbpUo07eeAyDP/z5VfrIwSMWnKgXcHlCuezpXR4D6poB0gSfPgkix6Xpw57bC7FpDgjojWjYnQ==';
 let xeroWebhookBodyParser = bodyParser.raw({ type: 'application/json' })
 var xero = new XeroClient(config);
 
@@ -251,7 +250,7 @@ app.post('/webhook', xeroWebhookBodyParser, function(req, res) {
 
     console.log("Req: Xero Signature:", req.headers['x-xero-signature'])
     // Generate Signature
-    var xeroWebhookSignature = crypto.createHmac("sha256", xeroWebhookKey).update(req.body.toString()).digest("base64");
+    var xeroWebhookSignature = crypto.createHmac("sha256", config.webhookKey).update(req.body.toString()).digest("base64");
     
     console.log("Res: Xero Signature:", xeroWebhookSignature)
 
