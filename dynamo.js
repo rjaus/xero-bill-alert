@@ -3,8 +3,13 @@ const uuid = require('uuid/v1');
 var AWS = require('aws-sdk');
 
 // Set the region 
-AWS.config.update({region: 'us-east-2'});
-
+// AWS.config.update({region: 'us-east-2'});
+AWS.config.update({ 
+    accessKeyId: process.env.aws_access_key_id,
+    secretAccessKey: process.env.aws_secret_access_key,
+    sessionToken: process.env.aws_session_token,
+    region: process.env.region
+});
 
 //public functions
 
@@ -60,7 +65,7 @@ module.exports = {
         return docClient.update(params).promise();
     },
     
-    updateUserOrgName: function (phoneNumber, orgName) {
+    updateUserOrgDetails: function (phoneNumber, orgName, orgId) {
       var docClient = new AWS.DynamoDB.DocumentClient({apiVersion: '2012-08-10'});
       var params = {
          TableName: "users",
@@ -68,9 +73,10 @@ module.exports = {
             {
                 'phoneNumber': phoneNumber
             },
-        UpdateExpression: "set orgName = :orgName",
+        UpdateExpression: "set orgName = :orgName, set orgId = :orgId",
             ExpressionAttributeValues: {
-                ":orgName": orgName
+                ":orgName": orgName,
+                ":orgId": orgId
             },
             ReturnValues:"UPDATED_NEW"
         };

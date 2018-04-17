@@ -18,7 +18,13 @@ var express = require("express"),
     
 
 // Set the region 
-AWS.config.update({region: 'us-east-2'});
+// AWS.config.update({region: 'us-east-2'});
+AWS.config.update({ 
+    accessKeyId: process.env.aws_access_key_id,
+    secretAccessKey: process.env.aws_secret_access_key,
+    sessionToken: process.env.aws_session_token,
+    region: process.env.region
+});
 
 var app = express();
 //from xero-node sample app
@@ -428,7 +434,8 @@ function downloadNewUserDetails(req, res) {
             //save org name to db
             const orgResult = await newXero.organisation.get();
             let orgName = orgResult.Organisations[0].Name;
-            updateUserOrgName(req, res, req.session.userPhoneNumber, orgName);
+            let orgId = orgResult.Organisations[0].OrganisationID;
+            updateUserOrgDetails(req, res, req.session.userPhoneNumber, orgName, orgId);
             
             //download ACCPAY invoices only
             const result = await newXero.invoices.get(args);
@@ -499,8 +506,8 @@ function exampleUseXero(req, res) {
 
 
 
-function updateUserOrgName (req, res, phoneNumber, orgName) {
-    dynamo.updateUserOrgName(phoneNumber, orgName).then(
+function updateUserOrgDetails (req, res, phoneNumber, orgName, orgId) {
+    dynamo.updateUserOrgDetails(phoneNumber, orgName, orgId).then(
       function(data) {
         console.log("Succesfully updated item: ", data.Item);
       }
